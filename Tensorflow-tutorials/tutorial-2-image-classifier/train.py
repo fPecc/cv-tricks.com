@@ -228,17 +228,19 @@ layer_fc2 = new_fc_layer(input=layer_fc1,
 y_pred = tf.nn.softmax(layer_fc2,name='y_pred')
 
 y_pred_cls = tf.argmax(y_pred, dimension=1)
+
 cross_entropy = tf.nn.softmax_cross_entropy_with_logits(logits=layer_fc2,
-                                                    labels=y_true)
-cost = tf.reduce_mean(cross_entropy)
+                                                        labels=y_true)
+cost = tf.reduce_mean(cross_entropy, name="cost")
 
 optimizer = tf.train.AdamOptimizer(learning_rate=1e-4).minimize(cost)
 correct_prediction = tf.equal(y_pred_cls, y_true_cls)
-accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
+accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32),name="accuracy")
 
 writer = tf.summary.FileWriter("./logs", session.graph)
-#session.run(tf.global_variables_initializer()) # for newer versions
-session.run(tf.initialize_all_variables()) # for older versions
+total_iterations = 0
+session.run(tf.global_variables_initializer()) # for newer versions
+#session.run(tf.initialize_all_variables()) # for older versions
 train_batch_size = batch_size
 
 ### FOR TENSORBOARD TUTORIAL ONLY
@@ -253,17 +255,14 @@ def print_progress(epoch, feed_dict_train, feed_dict_validate, val_loss):
     msg = "Epoch {0} --- Training Accuracy: {1:>6.1%}, Validation Accuracy: {2:>6.1%}, Validation Loss: {3:.3f}"
     print(msg.format(epoch + 1, acc, val_acc, val_loss))
 
-
-
-total_iterations = 0
-
 def optimize(num_iterations):
     # Ensure we update the global variable rather than a local copy.
+
     global total_iterations
 
     best_val_loss = float("inf")
 
-    for i in range(total_iterations,total_iterations + num_iterations):
+    for i in range(0,num_iterations):
 
         # Get a batch of training examples.
         # x_batch now holds a batch of images and
@@ -287,7 +286,7 @@ def optimize(num_iterations):
         # TensorFlow assigns the variables in feed_dict_train
         # to the placeholder variables and then runs the optimizer.
         session.run(optimizer, feed_dict=feed_dict_train)
-        saver = tf.train.Saver(max_to_keep=4, keep_checkpoint_every_n_hours=1)
+        saver = tf.train.Saver()
         saver.save(session,'./model/hand_detection_model')
 
         #Print status at end of each epoch (defined as full pass through training dataset).
@@ -295,17 +294,11 @@ def optimize(num_iterations):
             val_loss = session.run(cost, feed_dict=feed_dict_validate)
             epoch = int(i / int(data.train.num_examples/batch_size))
             print_progress(epoch, feed_dict_train, feed_dict_validate, val_loss)
-            
 
-    # Update the total number of iterations performed.
-    total_iterations += num_iterations
+        # Update the total number of iterations performed.
+        total_iterations =total_iterations+num_iterations
 
-
-
-
-optimize(num_iterations=3000)
-
-write.close()
+optimize(num_iterations=100000)
 
 #print_validation_accuracy()
 
