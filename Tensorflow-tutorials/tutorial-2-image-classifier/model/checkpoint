@@ -1,0 +1,2 @@
+model_checkpoint_path: "D:/syncplicity/Z003C3KM/Documents/GitHub/cv-tricks.com/Tensorflow-tutorials/tutorial-2-image-classifier/model/hand_detection_model"
+all_model_checkpoint_paths: "D:/syncplicity/Z003C3KM/Documents/GitHub/cv-tricks.com/Tensorflow-tutorials/tutorial-2-image-classifier/model/hand_detection_model"

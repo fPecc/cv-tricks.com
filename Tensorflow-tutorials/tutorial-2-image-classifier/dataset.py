@@ -2,6 +2,9 @@ import os
 import glob
 import numpy as np
 import cv2
+import traceback
+import sys
+
 from sklearn.utils import shuffle
 
 
@@ -15,7 +18,7 @@ def load_train(train_path, image_size, classes):
     for fld in classes:   # assuming data directory has a separate folder for each class, and that each folder is named after the class
         index = classes.index(fld)
         print('Loading {} files (Index: {})'.format(fld, index))
-        path = os.path.join(train_path, fld, '*g')
+        path = os.path.join(train_path, fld,'*.ppm')
         files = glob.glob(path)
         for fl in files:
             image = cv2.imread(fl)
@@ -38,7 +41,7 @@ def load_train(train_path, image_size, classes):
 def load_test(test_path, image_size,classes):
   
     for class_name in classes:
-        path = os.path.join(test_path,class_name, '*g')
+        path = os.path.join(test_path,class_name, '*.ppm')
         files = sorted(glob.glob(path))
 
         X_test = []
@@ -117,7 +120,17 @@ class DataSet(object):
 
       start = 0
       self._index_in_epoch = batch_size
-      assert batch_size <= self._num_examples
+      #try:
+      #  assert batch_size <= self._num_examples
+      #except AssertionError:
+      #    _, _, tb = sys.exc_info()
+      #    traceback.print_tb(tb)  # Fixed format
+      #    tb_info = traceback.extract_tb(tb)
+      #    filename, line, func, text = tb_info[-1]
+
+      #    print('An error occurred on line {} in statement {}'.format(line, text))
+      #    exit(1)
+
     end = self._index_in_epoch
 
     return self._images[start:end], self._labels[start:end], self._ids[start:end], self._cls[start:end]

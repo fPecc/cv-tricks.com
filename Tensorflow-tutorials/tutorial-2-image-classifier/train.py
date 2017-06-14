@@ -29,7 +29,7 @@ fc_size = 128             # Number of neurons in fully-connected layer.
 num_channels = 3
 
 # image dimensions (only squares for now)
-img_size = 128
+img_size = 50
 
 # Size of image when flattened to a single dimension
 img_size_flat = img_size * img_size * num_channels
@@ -39,11 +39,11 @@ img_shape = (img_size, img_size)
 
 # class info
 
-classes = ['dogs', 'cats']
+classes = ['A', 'B', 'C', 'Five', 'Point', 'V']
 num_classes = len(classes)
 
 # batch size
-batch_size = 16
+batch_size = 300
 
 # validation split
 validation_size = .2
@@ -190,16 +190,14 @@ y_true_cls = tf.argmax(y_true, dimension=1)
 
 
 
-layer_conv1, weights_conv1 = \
-new_conv_layer(input=x_image,
+layer_conv1, weights_conv1 = new_conv_layer(input=x_image,
                num_input_channels=num_channels,
                filter_size=filter_size1,
                num_filters=num_filters1,
                use_pooling=True)
 #print("now layer2 input")
 #print(layer_conv1.get_shape())     
-layer_conv2, weights_conv2 = \
-new_conv_layer(input=layer_conv1,
+layer_conv2, weights_conv2 = new_conv_layer(input=layer_conv1,
                num_input_channels=num_filters1,
                filter_size=filter_size2,
                num_filters=num_filters2,
@@ -207,8 +205,7 @@ new_conv_layer(input=layer_conv1,
 #print("now layer3 input")
 #print(layer_conv2.get_shape())     
                
-layer_conv3, weights_conv3 = \
-new_conv_layer(input=layer_conv2,
+layer_conv3, weights_conv3 = new_conv_layer(input=layer_conv2,
                num_input_channels=num_filters2,
                filter_size=filter_size3,
                num_filters=num_filters3,
@@ -239,7 +236,7 @@ optimizer = tf.train.AdamOptimizer(learning_rate=1e-4).minimize(cost)
 correct_prediction = tf.equal(y_pred_cls, y_true_cls)
 accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
-
+writer = tf.summary.FileWriter("./logs", session.graph)
 #session.run(tf.global_variables_initializer()) # for newer versions
 session.run(tf.initialize_all_variables()) # for older versions
 train_batch_size = batch_size
@@ -266,8 +263,7 @@ def optimize(num_iterations):
 
     best_val_loss = float("inf")
 
-    for i in range(total_iterations,
-                   total_iterations + num_iterations):
+    for i in range(total_iterations,total_iterations + num_iterations):
 
         # Get a batch of training examples.
         # x_batch now holds a batch of images and
@@ -291,21 +287,25 @@ def optimize(num_iterations):
         # TensorFlow assigns the variables in feed_dict_train
         # to the placeholder variables and then runs the optimizer.
         session.run(optimizer, feed_dict=feed_dict_train)
-	saver = tf.train.Saver()
-        saver.save(session, 'my_test_model') 
+        saver = tf.train.Saver(max_to_keep=4, keep_checkpoint_every_n_hours=1)
+        saver.save(session,'./model/hand_detection_model')
 
-        # Print status at end of each epoch (defined as full pass through training dataset).
+        #Print status at end of each epoch (defined as full pass through training dataset).
         if i % int(data.train.num_examples/batch_size) == 0: 
             val_loss = session.run(cost, feed_dict=feed_dict_validate)
             epoch = int(i / int(data.train.num_examples/batch_size))
-            
             print_progress(epoch, feed_dict_train, feed_dict_validate, val_loss)
             
 
     # Update the total number of iterations performed.
     total_iterations += num_iterations
 
-    
+
+
+
 optimize(num_iterations=3000)
+
+write.close()
+
 #print_validation_accuracy()
 
