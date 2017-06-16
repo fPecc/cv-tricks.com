@@ -250,10 +250,11 @@ train_batch_size = batch_size
 
 def print_progress(epoch, feed_dict_train, feed_dict_validate, val_loss):
     # Calculate the accuracy on the training-set.
+    now = time.strftime("%c")
     acc = session.run(accuracy, feed_dict=feed_dict_train)
     val_acc = session.run(accuracy, feed_dict=feed_dict_validate)
-    msg = "Epoch {0} --- Training Accuracy: {1:>6.1%}, Validation Accuracy: {2:>6.1%}, Validation Loss: {3:.3f}"
-    print(msg.format(epoch + 1, acc, val_acc, val_loss))
+    msg = "Epoch {0} --- Training Accuracy: {1:>6.1%}, Validation Accuracy: {2:>6.1%}, Validation Loss: {3:.3f} --- {4}"
+    print(msg.format(epoch + 1, acc, val_acc, val_loss,now))
 
 def optimize(num_iterations):
     # Ensure we update the global variable rather than a local copy.
@@ -287,10 +288,10 @@ def optimize(num_iterations):
         # to the placeholder variables and then runs the optimizer.
         session.run(optimizer, feed_dict=feed_dict_train)
         saver = tf.train.Saver()
-        saver.save(session,'./model/hand_detection_model')
+        saver.save(session,'./model3/hand_detection_model')
 
         #Print status at end of each epoch (defined as full pass through training dataset).
-        if i % int(data.train.num_examples/batch_size) == 0: 
+        if i % int(data.train.num_examples/batch_size) == 0:
             val_loss = session.run(cost, feed_dict=feed_dict_validate)
             epoch = int(i / int(data.train.num_examples/batch_size))
             print_progress(epoch, feed_dict_train, feed_dict_validate, val_loss)
