@@ -11,11 +11,11 @@ import dataset
 import random
     
 # Convolutional Layer 1.
-filter_size1 = 3 
+filter_size1 = 10
 num_filters1 = 32
 
 # Convolutional Layer 2.
-filter_size2 = 3
+filter_size2 = 5
 num_filters2 = 32
 
 # Convolutional Layer 3.
@@ -43,7 +43,7 @@ classes = ['A', 'B', 'C', 'Five', 'Point', 'V']
 num_classes = len(classes)
 
 # batch size
-batch_size = 300
+batch_size = 100
 
 # validation split
 validation_size = .2
@@ -196,17 +196,20 @@ layer_conv1, weights_conv1 = new_conv_layer(input=x_image,
                num_filters=num_filters1,
                use_pooling=True)
 #print("now layer2 input")
-#print(layer_conv1.get_shape())     
-layer_conv2, weights_conv2 = new_conv_layer(input=layer_conv1,
-               num_input_channels=num_filters1,
+print(layer_conv1.get_shape())
+layer_conv2, weights_conv2 = new_conv_layer(input=x_image,
+               num_input_channels=num_channels,
                filter_size=filter_size2,
                num_filters=num_filters2,
                use_pooling=True)
 #print("now layer3 input")
-#print(layer_conv2.get_shape())     
-               
-layer_conv3, weights_conv3 = new_conv_layer(input=layer_conv2,
-               num_input_channels=num_filters2,
+print(layer_conv2.get_shape())
+
+net = tf.concat(axis=3,values=[layer_conv1, layer_conv2])
+print(net.get_shape())
+
+layer_conv3, weights_conv3 = new_conv_layer(input=net,
+               num_input_channels=num_filters2*2,
                filter_size=filter_size3,
                num_filters=num_filters3,
                use_pooling=True)

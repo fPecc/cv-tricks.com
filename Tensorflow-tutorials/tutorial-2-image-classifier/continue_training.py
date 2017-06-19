@@ -79,10 +79,11 @@ train_batch_size = batch_size
 
 def print_progress(epoch, feed_dict_train, feed_dict_validate, val_loss):
     # Calculate the accuracy on the training-set.
+    now = time.strftime("%c")
     acc = session.run(accuracy, feed_dict=feed_dict_train)
     val_acc = session.run(accuracy, feed_dict=feed_dict_validate)
-    msg = "Epoch {0} --- Training Accuracy: {1:>6.1%}, Validation Accuracy: {2:>6.1%}, Validation Loss: {3:.3f}"
-    print(msg.format(epoch + 1, acc, val_acc, val_loss))
+    msg = "Epoch {0} --- Training Accuracy: {1:>6.1%}, Validation Accuracy: {2:>6.1%}, Validation Loss: {3:.3f} --- {4}"
+    print(msg.format(epoch + 1, acc, val_acc, val_loss, now))
 
 
 def optimize(num_iterations):
