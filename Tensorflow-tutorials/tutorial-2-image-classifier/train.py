@@ -19,11 +19,19 @@ filter_size2 = 5
 num_filters2 = 32
 
 # Convolutional Layer 3.
-filter_size3 = 3
-num_filters3 = 64
-    
+filter_size3 = 2
+num_filters3 = 32
+
+# Convolutional Layer 4.
+filter_size4 = 10
+num_filters4 = 64
+
+# Convolutional Layer 5.
+filter_size5 = 5
+num_filters5 = 128
+
 # Fully-connected layer.
-fc_size = 128             # Number of neurons in fully-connected layer.
+fc_size = 256             # Number of neurons in fully-connected layer.
 
 # Number of color channels for the images: 1 channel for gray-scale.
 num_channels = 3
@@ -51,13 +59,8 @@ validation_size = .2
 # how long to wait after validation loss stops improving before terminating training
 early_stopping = None  # use None if you don't want to implement early stoping
 
-
-
-
-
 train_path='training_data'
 test_path='testing_data'
-
 
 data = dataset.read_train_sets(train_path, img_size, classes, validation_size=validation_size)
 test_images, test_ids = dataset.read_test_set(test_path, img_size,classes)
@@ -209,27 +212,41 @@ with graph.as_default():
                num_filters=num_filters1,
                use_pooling=True)
     #print("now layer2 input")
-    print(layer_conv1.get_shape())
+    #print(layer_conv1.get_shape())
     layer_conv2, weights_conv2 = new_conv_layer(input=x_image,
                num_input_channels=num_channels,
                filter_size=filter_size2,
                num_filters=num_filters2,
                use_pooling=True)
     #print("now layer3 input")
-    print(layer_conv2.get_shape())
+    #print(layer_conv2.get_shape())
+    layer_conv3, weights_conv3 = new_conv_layer(input=x_image,
+                                                num_input_channels=num_channels,
+                                                filter_size=filter_size3,
+                                                num_filters=num_filters3,
+                                                use_pooling=True)
+    # print("now layer3 input")
+    #print(layer_conv2.get_shape())
 
-    net = tf.concat(axis=3,values=[layer_conv1, layer_conv2])
-    print(net.get_shape())
+    net = tf.concat(axis=3,values=[layer_conv1, layer_conv2, layer_conv3])
+    #print(net.get_shape())
 
-    layer_conv3, weights_conv3 = new_conv_layer(input=net,
-               num_input_channels=num_filters2*2,
-               filter_size=filter_size3,
-               num_filters=num_filters3,
+    layer_conv4, weights_conv4 = new_conv_layer(input=net,
+               num_input_channels=num_filters2*3,
+               filter_size=filter_size4,
+               num_filters=num_filters4,
                use_pooling=True)
     #print("now layer flatten input")
     #print(layer_conv3.get_shape())
-          
-    layer_flat, num_features = flatten_layer(layer_conv3)
+    layer_conv5, weights_conv5 = new_conv_layer(input=layer_conv4,
+                                                num_input_channels=num_filters4,
+                                                filter_size=filter_size5,
+                                                num_filters=num_filters5,
+                                                use_pooling=True)
+
+    layer_flat, num_features = flatten_layer(layer_conv5)
+
+    print(num_features)
 
     layer_fc1 = new_fc_layer(input=layer_flat,
                      num_inputs=num_features,
@@ -250,6 +267,7 @@ with graph.as_default():
     cost = tf.reduce_mean(cross_entropy, name="cost")
 
     optimizer = tf.train.AdamOptimizer(learning_rate=5e-5).minimize(cost)
+    #optimizer = tf.train.GradientDescentOptimizer(learning_rate=1e-5).minimize(cost)
     correct_prediction = tf.equal(y_pred_cls, y_true_cls)
     accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32),name="accuracy")
 
@@ -293,7 +311,7 @@ with graph.as_default():
 
         # Print status at end of each epoch (defined as full pass through training dataset).
         if i % int(data.train.num_examples / batch_size) == 0:
-            saver.save(session, './model4/hand_detection_model')
+            saver.save(session, './model5/hand_detection_model')
             val_loss = session.run(cost, feed_dict=feed_dict_validate)
             epoch = int(i / int(data.train.num_examples / batch_size))
             print_progress(epoch, feed_dict_train, feed_dict_validate, val_loss)
