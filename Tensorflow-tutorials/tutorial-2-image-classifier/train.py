@@ -51,7 +51,7 @@ classes = ['A', 'B', 'C', 'Five', 'Point', 'V']
 num_classes = len(classes)
 
 # batch size
-batch_size = 100
+batch_size = 300
 
 # validation split
 validation_size = .2
@@ -59,7 +59,7 @@ validation_size = .2
 # how long to wait after validation loss stops improving before terminating training
 early_stopping = None  # use None if you don't want to implement early stoping
 
-train_path='training_data'
+train_path='D:\\new_training_data'
 test_path='testing_data'
 
 data = dataset.read_train_sets(train_path, img_size, classes, validation_size=validation_size)
@@ -282,7 +282,7 @@ with graph.as_default():
 #writer= tf.summary.FileWriter('/tmp/tensorboard_tut')
 #writer.add_graph(session.graph)
 
-    num_iterations = 10000
+    num_iterations = 1000000
 
     for i in range(0, num_iterations):
 
@@ -311,7 +311,7 @@ with graph.as_default():
 
         # Print status at end of each epoch (defined as full pass through training dataset).
         if i % int(data.train.num_examples / batch_size) == 0:
-            saver.save(session, './model5/hand_detection_model')
+            saver.save(session, './model6/hand_detection_model')
             val_loss = session.run(cost, feed_dict=feed_dict_validate)
             epoch = int(i / int(data.train.num_examples / batch_size))
             print_progress(epoch, feed_dict_train, feed_dict_validate, val_loss)
